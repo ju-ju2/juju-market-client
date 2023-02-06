@@ -34,9 +34,11 @@ body,
   height: 36px;
 }
 #body {
-  min-height: 100vh;
+  /* min-height: 100vh; */
+  height: 100vh;
   background-color: blue;
-  width: 1024px;
+  max-width: 1024px;
+  width: 100%;
   margin: 0 auto;
   /* 자식이 부모를 기준으로 가운데 정렬 */
   padding-bottom: 24px;

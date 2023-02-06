@@ -2,41 +2,72 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "./index.css";
+import { API_URL } from "../config/constants";
+import dayjs from "dayjs";
+import { Button, message } from "antd";
 
 function Productpage() {
   const { id } = useParams();
-  const [product, setproduct] = useState(null);
-  useEffect(function () {
+  const [product, setProduct] = useState(null);
+
+  const getProduct = () => {
     axios
-      .get(
-        `https://f0871db4-d376-4a56-b92e-6aa7c9267f1a.mock.pstmn.io/products/${id}`
-      )
+      .get(`${API_URL}/products/${id}`)
       .then(function (result) {
-        setproduct(result.data);
+        setProduct(result.data.product);
       })
       .catch(function (error) {
         console.log("에러:", error);
       });
+  };
+
+  useEffect(function () {
+    getProduct();
   }, []);
 
   if (product === null) {
     return <h1>상품정보를 받고 있습니다.</h1>;
   }
 
+  const onclickPurchase = () => {
+    axios
+      .post(`${API_URL}/purchase/${id}`)
+      .then((result) => {
+        message.info("구매가 완료되었습니다.");
+        getProduct();
+      })
+      .catch((error) => {
+        message.error(`에러가 발생했습니다 ${error.message}`);
+      });
+  };
+
   return (
     <div>
       <div id="image-box">
-        <img src={"/" + product.imgurl} />
+        <img src={`${API_URL}/${product.imgurl}`} />
       </div>
       <div id="profile-box">
         <img src="/images/icons/avatar.png" />
-        <span>{product.seleer}</span>
+        <span>{product.seller}</span>
       </div>
       <div id="contents-box">
-        <div id="name">{product.name}</div>
+        <div id="name">{product.name}</div>0
         <div id="price">{product.price}원</div>
-        <div id="createdtime">2023년 2월 2일</div>
-        <div id="description">{product.description}</div>
+        <div id="createdAt">
+          {dayjs(product.createdAt).format("YYYY년 MM월 DD일")}
+        </div>
+        <Button
+          id="purchase-button"
+          size="large"
+          type="primary"
+          danger
+          onClick={onclickPurchase}
+          disabled={product.soldout === 1}
+        >
+          상품구매하기
+        </Button>
+        <pre id="description">{product.description}</pre>
+        {/* pre태그는 줄바꿈 태그를 그대로 보여준다 */}
       </div>
     </div>
   );
